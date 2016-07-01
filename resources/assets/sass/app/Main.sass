@@ -1,0 +1,89 @@
+body
+  padding-top: 50px
+
+.top-box
+  padding: 40px 15px
+  text-align: center
+
+// Cards
+.tutCard
+  margin-bottom: 2em
+  -webkit-box-shadow: -19px 9px 14px -12px rgba(217,217,217,0.62)
+  -moz-box-shadow: -19px 9px 14px -12px rgba(217,217,217,0.62)
+  box-shadow: -19px 9px 14px -12px rgba(217,217,217,0.62)
+  -webkit-transition: all 0.5s linear
+  -o-transition: all 0.5s linear
+  -moz-transition: all 0.5s linear
+  -ms-transition: all 0.5s linear
+  -kthtml-transition: all 0.5s linear
+  transition: all 0.5s linear
+
+.tutCard:hover
+  -webkit-box-shadow: -23px 27px 14px -12px rgba(217,217,217,0.62)
+  -moz-box-shadow: -23px 27px 14px -12px rgba(217,217,217,0.62)
+  box-shadow: -23px 27px 14px -12px rgba(217,217,217,0.62)
+  -webkit-transition: all 0.5s linear
+  -o-transition: all 0.5s linear
+  -moz-transition: all 0.5s linear
+  -ms-transition: all 0.5s linear
+  -kthtml-transition: all 0.5s linear
+  transition: all 0.5s linear
+
+
+.come-in
+  -webkit-transform: translateY(150px)
+      -ms-transform: translateY(150px)
+          transform: translateY(150px)
+  -webkit-animation: come-in 0.8s ease forwards
+          animation: come-in 0.8s ease forwards
+
+
+.come-in:nth-child(odd)
+  -webkit-animation-duration: 0.6s
+          animation-duration: 0.6s
+
+
+.already-visible
+  -webkit-transform: translateY(0)
+      -ms-transform: translateY(0)
+          transform: translateY(0)
+  -webkit-animation: none
+          animation: none
+
+
+@-webkit-keyframes come-in
+  to
+    -webkit-transform: translateY(0)
+            transform: translateY(0)
+
+
+
+@keyframes come-in
+  to
+    -webkit-transform: translateY(0)
+            transform: translateY(0)
+// Card styling
+.panel-php > .panel-heading
+  color: #fff
+  background-color: #6082bb
+  border-color: #6082bb
+
+.panel-laravel > .panel-heading
+  color: #fff
+  background-color: #f4645f
+  border-color: #f4645f
+
+.panel-js > .panel-heading
+  color: #fff
+  background-color: #f8dc3d
+  border-color: #f8dc3d
+
+.panel-vue > .panel-heading
+  color: #fff
+  background-color: #41b883
+  border-color: #41b883
+
+.panel-bootstrap > .panel-heading
+  color: #fff
+  background-color: #614789
+  border-color: #614789
