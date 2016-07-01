@@ -26704,29 +26704,55 @@ module.exports = Vue;
 },{"_process":3}],8:[function(require,module,exports){
 'use strict';
 
+var _Feed = require('./views/Feed.vue');
+
+var _Feed2 = _interopRequireDefault(_Feed);
+
 var _Tutorial = require('./views/Tutorial.vue');
 
 var _Tutorial2 = _interopRequireDefault(_Tutorial);
 
-var _Subscriptions = require('./components/Subscriptions.vue');
+var _Subscriptions = require('./views/Subscriptions.vue');
 
 var _Subscriptions2 = _interopRequireDefault(_Subscriptions);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * Hier worden alle modules ingeladen.
+ */
 var Vue = require('vue');
 var VueResource = require('vue-resource');
 var VueRouter = require('vue-router');
 
+/**
+ * Laat vue de modules daadwerkelijk gebruiken
+ */
 Vue.use(VueResource);
 Vue.use(VueRouter);
 
+/**
+ * Maak een nieuwe router aan.
+ * Zo kunnen we zonder een refresh de URL aanpassen.
+ */
 var router = new VueRouter();
 
+/**
+ * Importeer alle components uit de views folder.
+ * De naam wordt hier gezet, zodat we er in ons App object
+ * naar kunnen verwijzen.
+ */
+
+
+/**
+ * De router mapping.
+ * Hier krijgt elke route een naam (zodat hiernaar verwezen
+ * kan worden in anchors/andere plaatsen in de code)
+ */
 router.map({
   '/': {
     name: 'home',
-    component: _Tutorial2.default
+    component: _Feed2.default
   },
   '/tutorials/:id': {
     name: 'tutorial.show',
@@ -26734,46 +26760,27 @@ router.map({
   }
 });
 
+/**
+ * De daadwerkelijke app.
+ * Alle verdere logica en
+ * requests naar de server wordt vanuit de views/components gedaan
+ */
 var App = Vue.extend({
   el: '#app',
 
-  components: { Tutorial: _Tutorial2.default, Subscriptions: _Subscriptions2.default },
+  /**
+   * components - hier worden de verschillende views ingeladen
+   */
+  components: { Feed: _Feed2.default, Tutorial: _Tutorial2.default, Subscriptions: _Subscriptions2.default }
 
-  ready: function ready() {
-    // alert("App.js compiled!");
-  }
 });
 
+/**
+ * Start de router, zodat onze routes werken.
+ */
 router.start(App, '#app');
 
-},{"./components/Subscriptions.vue":9,"./views/Tutorial.vue":11,"vue":7,"vue-resource":5,"vue-router":6}],9:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = {
-
-  props: ['type'],
-
-  data: function data() {
-    return {
-      show: true
-    };
-  }
-};
-if (module.exports.__esModule) module.exports = module.exports.default
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  if (!module.hot.data) {
-    hotAPI.createRecord("_v-69f0d4c2", module.exports)
-  } else {
-    hotAPI.update("_v-69f0d4c2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
-},{"vue":7,"vue-hot-reload-api":4}],10:[function(require,module,exports){
+},{"./views/Feed.vue":10,"./views/Subscriptions.vue":11,"./views/Tutorial.vue":12,"vue":7,"vue-resource":5,"vue-router":6}],9:[function(require,module,exports){
 'use strict';
 
 window.$ = window.jQuery = require('jquery');
@@ -26783,7 +26790,162 @@ $(document).ready(function () {
     // console.log($.fn.tooltip.Constructor.VERSION);
 });
 
-},{"bootstrap-sass":1,"jquery":2}],11:[function(require,module,exports){
+},{"bootstrap-sass":1,"jquery":2}],10:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+
+/**
+ * export default - Omdat we de naam al hebben gegeven
+ * in app.js (voor compilation), hoeven we hier enkel "export default" te gebruiken
+ */
+exports.default = {
+
+  /**
+   * props - alle properties die we nodig hebben in deze view/component
+   */
+  props: ['tuts', 'subscriptions', 'categories'],
+
+  /**
+   * data - zet default values voor onze properties. In dit geval
+   * zijn dat objecten.
+   *
+   * @return {type} obj - geeft object met objecten terug.
+   */
+  data: function data() {
+    return {
+      tuts: [],
+      subscriptions: [],
+      categories: []
+    };
+  },
+
+
+  /**
+   * Hier komen alle filters te staan. Filters zijn bedoeld om
+   * data te manipuleren.
+   */
+  filters: {
+
+    /**
+     * truncate - deze functie maakt een string korter met 'value'
+     * en zet er vervolgens '...' achter. Zo voorkomen we lange stukken
+     * tekst.
+     *
+     * @param  {type} string - de string die verkort moet worden
+     * @param  {type} value  - het aantal karakters wat de string moet worden
+     * @return {type} string - geeft de verkorte string met '...' terug.
+     */
+
+    truncate: function truncate(string, value) {
+      return string.substring(0, value) + '...';
+    }
+  },
+
+  /**
+   * Hier definiëren we alle methods die we nodig hebben.
+   */
+  methods: {
+
+    /**
+     * fetchTutorials - deze functie haalt de tutorials op.
+     * Vervolgens slaan we deze data op in de 'tutorials'
+     * property.
+     *
+     * @return {type} void - geen return type, er wordt enkel een
+     * property gezet.
+     */
+
+    fetchTutorials: function fetchTutorials() {
+      var _this = this;
+
+      var resource = this.$resource('api/tutorials/{id}');
+      resource.get({}).then(function (tuts) {
+        _this.$set('tuts', tuts.json());
+      });
+    },
+
+
+    /**
+     * fetchSubscriptions - deze functie haalt de categories op
+     * waarop de gebruiker geabonneert is.
+     *
+     * @return {type} void - geen return type, er wordt enkel een
+     * property gezet.
+     */
+    fetchSubscriptions: function fetchSubscriptions() {
+      var _this2 = this;
+
+      var resource = this.$resource('api/subscriptions');
+      resource.get({}).then(function (subscriptions) {
+        _this2.$set('subscriptions', subscriptions.json());
+      });
+    },
+
+
+    /**
+     * fetchCategories - deze functie haalt de categories op.
+     *
+     * @return {type} void - geen return type, er wordt enkel een
+     * property gezet.
+     */
+    fetchCategories: function fetchCategories() {
+      var _this3 = this;
+
+      var resource = this.$resource('api/categories');
+      resource.get({}).then(function (categories) {
+        _this3.$set('categories', categories.json());
+      });
+    },
+
+
+    /**
+     * parseCategory - deze functie checked of de gebruiker geabonneerd
+     * is op de gegeven categorie.
+     *
+     * @param  {type} string - Geeft shorthand om te vergelijken.
+     * @return {type} boolean - Geeft true of false terug.
+     */
+    parseCategory: function parseCategory(shorthand) {
+      for (var i = 0; i < this.categories.length; i++) {
+        if (this.categories[i].shorthand == shorthand) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+  },
+
+  /**
+   * ready - als het component klaar is met laden,
+   * voert het een enkele functie uit.
+   *
+   * @return {type} void - geen return type, er worden enkele
+   * functies uitgevoerd.
+   */
+  ready: function ready() {
+    this.fetchTutorials();
+    this.fetchSubscriptions();
+    this.fetchCategories();
+  }
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n  <h2>Feed</h2>\n<!-- Loop door alle data heen en weergeef deze in de respectievelijke HTML elementen -->\n  <div class=\"col-lg-6 col-md-6 col-sm-12 tutCard\" v-for=\"tut in tuts\">\n    <div class=\"panel panel-{{ tut.shorthand }}\">\n      <div class=\"panel-heading\">{{ tut.title }}</div>\n      <div class=\"panel-body\">\n        <p class=\"lead\">{{ tut.description | truncate '150'}}</p>\n        <p>\n          <a href=\"{{ tut.url }}\" target=\"_blank\">Go to tutorial!</a>\n        </p>\n        <hr>\n        <p>\n          <!-- Als er nog geen rating is, staat er \"Not yet rated\"; Als er een rating is, wordt deze weergeven als X out of 5 -->\n          Rating: <strong v-if=\"tut.rating > 0\">{{ tut.rating }} out of 5</strong><strong v-else=\"\">Not yet rated</strong>\n        </p>\n        <p>\n          <a v-link=\"{ name : 'tutorial.show', params : { id : tut.id } }\" class=\"btn btn-warning\">Discussion</a>\n        </p>\n      </div>\n    </div>\n  </div>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-2abe05bb", module.exports)
+  } else {
+    hotAPI.update("_v-2abe05bb", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":7,"vue-hot-reload-api":4}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26791,41 +26953,143 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = {
 
-  props: ['type', 'tuts'],
+  props: ['subscriptions'],
 
   data: function data() {
     return {
-      tuts: []
+      // tutorial: [],
+      // comments: [],
+      // users: []
     };
   },
 
 
-  filters: {
-    truncate: function truncate(string, value) {
-      return string.substring(0, value) + '...';
-    }
-  },
-
   methods: {
-    fetchTutorials: function fetchTutorials() {
-      var _this = this;
-
-      var resource = this.$resource('api/tutorials/{/id}');
-
-      resource.get({}).then(function (tuts) {
-        _this.$set('tuts', tuts.json());
-
-        console.log(_this.tuts);
-      });
-    }
+    fetchSubscriptions: function fetchSubscriptions() {}
   },
 
   ready: function ready() {
-    this.fetchTutorials();
+    this.fetchTutorial();
+    this.fetchUsers();
   }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<h2>Tutorials</h2>\n<nav>\n  <a v-link=\"{ name: 'home' }\">Home</a>\n  <a v-link=\"{ name: 'tutorial.show', params: { id : 2}}\">Show</a>\n</nav>\n\n<div class=\"col-lg-6 col-md-6 col-sm-12 tutCard\" v-for=\"tut in tuts\">\n  <div class=\"panel panel-{{ tut.shorthand }}\">\n    <div class=\"panel-heading\">{{ tut.title }}</div>\n    <div class=\"panel-body\">\n      <p class=\"lead\">{{ tut.description | truncate '150'}}</p>\n      <p>\n        <a href=\"{{ tut.url }}\" target=\"_blank\">Go to tutorial!</a>\n      </p>\n      <hr>\n      <p>\n        Rating: <strong v-if=\"tut.rating > 0\">{{ tut.rating }} out of 5</strong><strong v-else=\"\">Not yet rated</strong>\n      </p>\n      <p>\n        <a v-link=\"{ path: '/tutorial/tut.id }}' }\" class=\"btn btn-warning\">Discussion</a>\n      </p>\n    </div>\n  </div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-e1ba28ae", module.exports)
+  } else {
+    hotAPI.update("_v-e1ba28ae", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":7,"vue-hot-reload-api":4}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+
+/**
+ * export default - Omdat we de naam al hebben gegeven
+ * in app.js (voor compilation), hoeven we hier enkel "export default" te gebruiken
+ */
+exports.default = {
+
+  /**
+   * props - alle properties die we nodig hebben in deze view/component
+   */
+  props: ['tutorial', 'comments', 'users'],
+
+  /**
+   * data - zet default values voor onze properties. In dit geval
+   * zijn dat objecten.
+   *
+   * @return {type} obj - geeft object met objecten terug.
+   */
+  data: function data() {
+    return {
+      tutorial: [],
+      comments: [],
+      users: []
+    };
+  },
+
+
+  /**
+   * Hier definiëren we alle methods die we nodig hebben.
+   */
+  methods: {
+
+    /**
+     * fetchTutorial - deze functie haalt de tutorial op met het id
+     * uit de route. Vervolgens slaan we deze data op in de 'tutorial' en
+     * 'comments' properties resp.
+     *
+     * @return {type} void - geen return type, er worden enkel properties gezet.
+     */
+
+    fetchTutorial: function fetchTutorial() {
+      var _this = this;
+
+      var id = this.$route.params.id;
+      var resource = this.$resource('api/tutorials/' + id);
+
+      resource.get({}).then(function (tutorial) {
+        _this.$set('tutorial', tutorial.json());
+        _this.$set('comments', tutorial.json()[0].comment);
+      });
+    },
+
+
+    /**
+     * fetchUsers - haal alle gebruikers op en sla
+     * deze op in de 'users' property.
+     *
+     * @return {type} void - geen return type, er worden enkel properties gezet.
+     */
+    fetchUsers: function fetchUsers() {
+      var _this2 = this;
+
+      var resource = this.$resource('api/users/');
+      resource.get({}).then(function (users) {
+        _this2.$set('users', users.json());
+      });
+    },
+
+
+    /**
+     * parseUser - loop door alle users heen en geef naam van de
+     * gebruiker terug.
+     *
+     * @param  {type} id - dit is de user id
+     * @return {type} string - geeft string (naam) terug
+     */
+    parseUser: function parseUser(id) {
+      for (var i = 0; i < this.users.length; i++) {
+        if (this.users[i].id == id) {
+          return this.users[i].name;
+        }
+      }
+    }
+  },
+
+  /**
+   * ready - als het component klaar is met laden,
+   * voert het enkele functies uit
+   *
+   * @return {type} void - geen return type, er worden enkel functies uitgevoerd.
+   */
+  ready: function ready() {
+    this.fetchTutorial();
+    this.fetchUsers();
+  }
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<h2>Tutorial</h2>\n<!-- Loop door alle data heen en weergeef deze in de respectievelijke HTML elementen -->\n<div class=\"col-lg-12 col-md-12 col-sm-12 tutCard\" v-for=\"data in tutorial\">\n  <div class=\"panel panel-{{ data.shorthand }}\">\n    <div class=\"panel-heading\">{{ data.title }}</div>\n    <div class=\"panel-body\">\n      <p class=\"lead\">{{ data.description }}</p>\n      <p>\n        <a href=\"{{ data.url }}\" target=\"_blank\">Go to tutorial!</a>\n      </p>\n      <hr>\n      <p>\n        <!-- Als er nog geen rating is, staat er \"Not yet rated\"; Als er een rating is, wordt deze weergeven als X out of 5 -->\n        Rating: <strong v-if=\"data.rating > 0\">{{ data.rating }} out of 5</strong><strong v-else=\"\">Not yet rated</strong>\n      </p>\n      <p>\n      </p>\n    </div>\n  </div>\n</div>\n<hr>\n<div class=\"col-lg-12 col-md-12 col-sm-12\">\n  <h2>Discussion</h2>\n  <div class=\"media\" v-for=\"comment in comments\">\n    <a class=\"pull-left\" href=\"#\">\n      <img class=\"media-object\" src=\"http://wiseheartdesign.com/images/articles/default-avatar.png\" alt=\"\">\n    </a>\n    <div class=\"media-body\">\n      <!-- parseUser(id) geeft de naam van de gebruiker terug -->\n      <h4 class=\"media-heading\">{{ parseUser(comment.user_id) }}\n        <small>August 25, 2014 at 9:30 PM</small>\n      </h4>\n      {{ comment.comment }}\n    </div>\n  </div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -26836,6 +27100,6 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-1c36a0fb", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":7,"vue-hot-reload-api":4}]},{},[10,8]);
+},{"vue":7,"vue-hot-reload-api":4}]},{},[9,8]);
 
 //# sourceMappingURL=bundle.js.map

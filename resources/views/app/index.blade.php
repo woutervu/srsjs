@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Pulp - The Programmer's Yelp</title>
-  <link rel="stylesheet" href="/css/app.css"
+  <link rel="stylesheet" href="/css/app.css" />
 
 </head>
 <body id="app">
@@ -44,16 +44,10 @@
               </router-view>
             </div>
 
-
           </div>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-12">
-          <h2>Subscriptions</h2>
-          <subscriptions></subscriptions>
         </div>
 
       </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.9.1/vue-resource.js"></script>
       <script src="{{ asset('/js/bundle.js') }}"></script>
     </body>
     </html>
